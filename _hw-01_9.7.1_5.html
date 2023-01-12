@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .block {
+            width: 500px; 
+            margin: 100px 30px 50px; 
+            text-align: center;
+        }
+        .request_area {
+            width: inherit;
+            margin-bottom: 0;
+            display: flex; 
+            flex-direction: column;
+        }
+        input {
+            margin-bottom: 40px;
+            padding: 3px;
+        }
+        button {
+            margin-bottom: 20px;
+            padding: 5px;
+            background-color: #458FF6;
+            border: 0px; 
+            border-radius: 2px;
+            color: white;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+        button:hover {
+            cursor: pointer;
+            background-color: #0d6cf0;
+        }
+        .card {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px 0;
+        }
+        .card_info {
+            margin: 0 20px;
+            text-align: left;
+        }
+        .card_info-item {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 16px;
+        }
+        .card-image {
+            min-width: 200px;
+            max-height: 150px;
+        }
+    </style>
+    <title>Document</title>
+</head>
+<body>
+
+    <main>
+        <div class="block">
+            <div class="request_area">
+                <h2>Введите данные</h2>
+                <input id="input_page" type="text" placeholder="Номер страницы">
+                <input id="input_limit" type="text" placeholder="Лимит">
+                <button id="button">Запрос</button>
+            </div>
+            <div id="output"></div>
+        </div>
+    </main>
+
+    <script>
+
+        let input_p = document.querySelector("#input_page");
+        let input_l = document.querySelector("#input_limit");
+        let button = document.querySelector("#button");
+        let output = document.querySelector("#output");
+
+        function response() {
+
+            button.addEventListener("click", () => request(display));
+
+            function valueCheck() {
+
+                let check = true;
+
+                if ((input_p.value < 1 || input_p.value > 10) && (input_l.value < 1 || input_l.value > 10) ) {
+                    output.innerHTML = 'Номер страницы и лимит вне диапазона от 1 до 10';
+                    check = false;
+                } else if (input_p.value < 1 || input_p.value > 10) {
+                    output.innerHTML = 'Номер страницы вне диапазона от 1 до 10';
+                    check = false;
+                } else if (input_l.value < 1 || input_l.value > 10) {
+                    output.innerHTML = 'Лимит вне диапазона от 1 до 10';
+                    check = false;
+                }
+
+                if ((input_p.value === '' || isNaN(+input_p.value)) && (input_l.value === '' || isNaN(+input_l.value))) {
+                    output.innerHTML = 'Номер страницы и лимит вне диапазона от 1 до 10';
+                    check = false;
+                } else if (input_p.value === '' || isNaN(+input_p.value)) {
+                    output.innerHTML = 'Номер страницы вне диапазона от 1 до 10';
+                    check = false;
+                } else if (input_l.value === '' || isNaN(+input_l.value)) {
+                    output.innerHTML = 'Лимит вне диапазона от 1 до 10';
+                    check = false;
+                }
+
+                return check;
+            }
+
+            function request(callback) {
+
+                if (valueCheck()) {
+                    fetch (`https://picsum.photos/v2/list?page=${input_p.value}&limit=${input_l.value}`)
+                        .then(response => {
+                            return response.json();
+                        })
+                        .then(data => {
+                            localStorage.setItem('data', JSON.stringify(data));
+                            console.log(data);
+                            display(data);
+                        })
+                        .catch(() => output.innerHTML = 'Ошибка запроса')
+                }  
+            }
+        }
+
+        function display(data) {
+
+            let cards = '';
+
+            data.forEach(elem => {
+
+                let cardBlock = `
+                <div class="card">
+                    <img src="${elem.download_url}" class="card-image"/>
+                    <div class="card_info">
+                        <span class="card_info-item">id: ${elem.id}</span><br>
+                        <span class="card_info-item">author: ${elem.author}</span><br>
+                        <span class="card_info-item">width: ${elem.width}</span><br>
+                        <span class="card_info-item">height: ${elem.height}</span><br>
+                        <span class="card_info-item">url: </span><a href="${elem.url}">${elem.url}</a><br>
+                        <span class="card_info-item">download_url: </span><a href="${elem.download_url}">${elem.download_url}</a>
+                    </div>
+                </div>`;
+
+                cards += cardBlock;
+            });
+
+            output.innerHTML = cards;
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            if (localStorage.getItem('data') != null) {
+                display(JSON.parse(localStorage.getItem('data')));
+            }
+            response();
+        });
+
+    </script>
+</body>
+</html>

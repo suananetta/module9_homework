@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .block {
+            width: 500px; 
+            margin: 100px 0 50px; 
+            text-align: center;
+        }
+        .request {
+            width: inherit;
+            margin: 30px;
+            display: flex; 
+            justify-content: center; 
+        }
+        input {
+            margin-right: 40px;
+            padding: 3px;
+        }
+        button {
+            padding: 5px;
+            background-color: #458FF6;
+            border: 0px; 
+            border-radius: 2px;
+            color: white;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+        button:hover {
+            cursor: pointer;
+            background-color: #0d6cf0;
+        }
+        .card {
+            display: flex;
+            justify-content: space-between;
+            margin: 30px;
+        }
+        .card_info {
+            margin: 0 20px;
+            text-align: left;
+        }
+        .card_info-item {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 16px;
+        }
+        .card-image {
+            width: 200px;
+            height: 150px;
+        }
+    </style>
+    <title>Document</title>
+</head>
+<body>
+
+    <main>
+        <div class="block">
+            <h2>Введите число в диапазоне от 1 до 10</h2>
+            <div class="request">
+                <input id="input" type="text" placeholder="Введите число">
+                <button id="button">Результат</button>
+            </div>
+            <div id="output"></div>
+        </div>
+        
+    </main>
+
+    <script>
+
+        function response() {
+
+            let input = document.querySelector("#input");
+            let button = document.querySelector("#button");
+            let output = document.querySelector("#output");
+
+            button.addEventListener("click", () => request(display));
+
+            function request(callback) {
+
+                if(input.value === '' || isNaN(+input.value)) {
+                    output.innerHTML = 'Введены некорректные данные';
+                } else {
+                    if (input.value < 1 || input.value > 10) {
+                        output.innerHTML = 'Число вне диапазона от 1 до 10';
+                    } else {
+                       
+                        let xhr = new XMLHttpRequest();
+                        xhr.open('GET', `https://picsum.photos/v2/list?limit=${input.value}`);
+                        xhr.send();
+
+                        xhr.onerror = function () {
+                            output.innerHTML = 'Ошибка запроса';
+                        }
+
+                        xhr.onload = function () {
+                            if(xhr.status == 200) {
+                                let result = JSON.parse(xhr.response);
+                                console.log(result);
+                                if(callback) callback(result);
+                            }
+                        }    
+                    }  
+                }
+            }
+
+            function display(data) {
+
+                let cards = '';
+
+                data.forEach(elem => {
+                    let cardBlock = `
+                    <div class="card">
+                        <img src="${elem.download_url}" class="card-image"/>
+                        <div class="card_info">
+                            <span class="card_info-item">id: ${elem.id}</span><br>
+                            <span class="card_info-item">author: ${elem.author}</span><br>
+                            <span class="card_info-item">width: ${elem.width}</span><br>
+                            <span class="card_info-item">height: ${elem.height}</span><br>
+                            <span class="card_info-item">url: </span><a href="${elem.url}">${elem.url}</a><br>
+                            <span class="card_info-item">download_url: </span><a href="${elem.download_url}">${elem.download_url}</a>
+                        </div>
+                    </div>`;
+
+                    cards += cardBlock;
+                });
+
+                output.innerHTML = cards;
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", response);
+
+    </script>
+</body>
+</html>

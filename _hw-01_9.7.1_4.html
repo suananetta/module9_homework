@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .block {
+            width: 500px; 
+            margin: 100px 0 50px; 
+            text-align: center;
+        }
+        .request_area {
+            width: inherit;
+            margin: inherit;
+            display: flex; 
+            flex-direction: column;
+            justify-content: center; 
+        }
+        input {
+            margin-bottom: 40px;
+            padding: 3px;
+        }
+        button {
+            padding: 5px;
+            background-color: #458FF6;
+            border: 0px; 
+            border-radius: 2px;
+            color: white;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+        button:hover {
+            cursor: pointer;
+            background-color: #0d6cf0;
+        }
+        .card {
+            display: flex;
+            margin: 30px;
+        }
+    </style>
+    <title>Document</title>
+</head>
+<body>
+
+    <main>
+        <div class="block">
+            <div class="request_area">
+                <h2>Введите значения в диапазоне от 100 до 300</h2>
+                <input id="input_width" type="text" placeholder="Ширина, px">
+                <input id="input_height" type="text" placeholder="Высота, px">
+                <button id="button">Результат</button>
+            </div>
+            <div id="output"></div>
+        </div>  
+    </main>
+
+    <script>
+
+        function response() {
+
+            let input_w = document.querySelector("#input_width");
+            let input_h = document.querySelector("#input_height");
+            let button = document.querySelector("#button");
+            let output = document.querySelector("#output");
+
+            function request() {
+
+                if(input_w.value === '' || isNaN(+input_w.value) || input_h.value === '' || isNaN(+input_h.value)) {
+                    output.innerHTML = 'Введены некорректные данные';
+                } else {
+                    if (input_w.value < 100 || input_w.value > 300 || input_h.value < 100 || input_h.value > 300) {
+                        output.innerHTML = 'Одно из чисел вне диапазона от 100 до 300';
+                    } else {
+                        fetch(`https://picsum.photos/`)
+                        .then(response => {
+                            return response;
+                        })
+                        .then(data => {
+                            output.innerHTML = `
+                                <img class="card-image" src="https://picsum.photos/${input_w.value}/${input_h.value}"/>
+                            `;
+                        })
+                    }  
+                }
+            }
+
+            button.addEventListener("click", () => request());
+        }
+
+        document.addEventListener("DOMContentLoaded", response);
+
+    </script>
+</body>
+</html>
